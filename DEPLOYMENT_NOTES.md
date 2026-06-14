@@ -33,6 +33,21 @@ Notes on the GitHub Pages deployment for the Oriex Embedded AI Lab.
   and the app title loads.
 - Avoid unrelated build or runtime changes in the same workflow update.
 
+## Applied mitigation (Phase 10)
+
+- Selected mitigation: upgrade the Pages deploy action to the newer stable major
+  version that runs on Node24.
+- Workflow change: `actions/deploy-pages@v4` → `actions/deploy-pages@v5` in
+  `.github/workflows/deploy-pages.yml` (no other workflow changes).
+- Left unchanged: Vite base path, build command, `dist` directory, Pages
+  artifact path (`upload-pages-artifact@v3`, `path: dist`), permissions,
+  concurrency, and all runtime source files.
+- Verification steps used:
+  - `npm run security:check`, `npm run build`, `npm run test`, `npm run lint`
+  - CI passes
+  - GitHub Pages deployment succeeds
+  - Public URL returns HTTP 200 and the app title loads
+
 ## Do not change without review
 
 - Pages base path (`base: '/oriex-embedded-ai-lab/'` in `vite.config.ts`).
