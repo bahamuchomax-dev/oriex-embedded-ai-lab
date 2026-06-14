@@ -47,9 +47,7 @@ describe('transformers package loading', () => {
   it('is loaded only via a dynamic import', () => {
     expect(labText).toContain('@huggingface/transformers')
     expect(/import\s*\(/.test(labText)).toBe(true)
-    expect(/import\s*\(\s*\/\*[^*]*\*\/\s*['"]@huggingface\/transformers['"]/.test(labText)).toBe(
-      true,
-    )
+    expect(/import\s*\(\s*['"]@huggingface\/transformers['"]\s*\)/.test(labText)).toBe(true)
   })
 })
 

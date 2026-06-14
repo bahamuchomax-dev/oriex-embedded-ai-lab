@@ -3,19 +3,19 @@
 // Safety rules enforced here:
 // - NO top-level import of the transformers package. It is ONLY loaded via a
 //   dynamic import after the user clicks "load model".
-// - Model weights are NOT bundled in this repo. They would be fetched by the
-//   transformers runtime at load time from its configured source.
-// - MODEL_ID is empty by default, so the lab stays offline-safe and shows
-//   "model-id-not-configured" instead of auto-fetching anything.
+// - Model weights are NOT bundled in this repo. They are fetched by the
+//   transformers runtime from the Hugging Face Hub at load time.
+// - No prompt or generated text is ever sent to any external AI API. The only
+//   network traffic is the Hugging Face model-asset download.
 
 import { classifyError, makeClassifiedError } from './errorClassifier'
 import type { ClassifiedError } from './errorClassifier'
 
 export const ENGINE_NAME = 'Transformers.js / WASM fallback'
 
-// Set a vetted, browser-compatible (ONNX) model id to enable real loading,
-// e.g. 'onnx-community/Qwen2.5-0.5B-Instruct'. Left empty on purpose.
-export const MODEL_ID = ''
+// Small, browser-compatible (ONNX) verification model for the PoC. Weights are
+// fetched at runtime from the Hugging Face Hub, never bundled in this repo.
+export const MODEL_ID = 'Xenova/distilgpt2'
 
 export const TRANSFORMERS_PACKAGE = '@huggingface/transformers'
 
@@ -50,9 +50,16 @@ interface TextGenerationPipeline {
   (input: string, options?: Record<string, unknown>): Promise<unknown>
 }
 
+interface TransformersEnv {
+  allowLocalModels?: boolean
+  allowRemoteModels?: boolean
+  useBrowserCache?: boolean
+  backends?: { onnx?: { wasm?: unknown } }
+}
+
 interface TransformersModule {
   pipeline: (task: string, model: string, options?: Record<string, unknown>) => Promise<unknown>
-  env?: { backends?: { onnx?: { wasm?: unknown } } }
+  env?: TransformersEnv
 }
 
 function detectBackend(mod: TransformersModule): string {
@@ -92,10 +99,15 @@ async function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
 }
 
 export async function loadTransformersModule(): Promise<TransformersModule> {
-  // Dynamic import ONLY. @vite-ignore keeps the package external so the build
-  // never needs it bundled and a missing package surfaces as a runtime error
-  // we can classify as transformers-not-installed.
-  const mod = (await import(/* @vite-ignore */ '@huggingface/transformers')) as TransformersModule
+  // Dynamic import ONLY (never a top-level import). Vite code-splits this into a
+  // separate chunk fetched on demand when the user loads the model.
+  const mod = (await import('@huggingface/transformers')) as unknown as TransformersModule
+  // Only fetch model assets from the Hugging Face Hub; no local model files are
+  // bundled in this repo. This library sends no prompt text to any AI API.
+  if (mod.env) {
+    mod.env.allowLocalModels = false
+    mod.env.allowRemoteModels = true
+  }
   return mod
 }
 
@@ -121,7 +133,12 @@ export async function createPipeline(timeoutMs: number = LOAD_TIMEOUT_MS): Promi
   return {
     backend,
     generate: async (prompt: string) => {
-      const output = await pipe(prompt, { max_new_tokens: 96, temperature: 0.7 })
+      const output = await pipe(prompt, {
+        max_new_tokens: 64,
+        temperature: 0.7,
+        do_sample: true,
+        return_full_text: false,
+      })
       return extractText(output)
     },
   }
