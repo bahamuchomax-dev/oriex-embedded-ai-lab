@@ -44,3 +44,46 @@
 .lab ul {
   padding-left: 1.25rem;
 }
+
+.note {
+  margin: 0.1rem 0;
+  font-size: 0.9rem;
+  color: #444;
+}
+
+.summary {
+  background: #eef6ff;
+  border: 1px solid #cfe3fb;
+  border-radius: 8px;
+  padding: 0.6rem 0.75rem;
+  margin: 0.5rem 0;
+  font-size: 0.9rem;
+}
+
+.log-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin: 0.5rem 0;
+}
+
+.logtable-wrap {
+  overflow-x: auto;
+}
+
+.logtable {
+  border-collapse: collapse;
+  width: 100%;
+  font-size: 0.8rem;
+}
+
+.logtable th,
+.logtable td {
+  border: 1px solid #ddd;
+  padding: 0.3rem 0.5rem;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.logtable th {
+  background: #f4f4f5;
+}

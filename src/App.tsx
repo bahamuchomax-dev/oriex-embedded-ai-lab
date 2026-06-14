@@ -12,6 +12,27 @@ import { classifyError } from './embeddedAi/errorClassifier'
 import { createDiagnosticLogEntry, formatDiagnosticLog } from './embeddedAi/diagnosticLog'
 import type { DiagnosticLogEntry } from './embeddedAi/diagnosticLog'
 
+// Columns shown in the benchmark table. Deliberately excludes any body text:
+// only ids, timings, lengths and environment fields are listed.
+const LOG_COLUMNS: { key: keyof DiagnosticLogEntry; label: string }[] = [
+  { key: 'modelId', label: 'modelId' },
+  { key: 'success', label: 'success' },
+  { key: 'errorType', label: 'errorType' },
+  { key: 'loadDurationMs', label: 'load ms' },
+  { key: 'generationDurationMs', label: 'gen ms' },
+  { key: 'inputLength', label: 'inLen' },
+  { key: 'outputLength', label: 'outLen' },
+  { key: 'deviceMemory', label: 'devMem' },
+  { key: 'hardwareConcurrency', label: 'cores' },
+  { key: 'secureContext', label: 'secure' },
+  { key: 'hasIndexedDb', label: 'idb' },
+]
+
+function formatCell(value: unknown): string {
+  if (value === null || value === undefined) return '-'
+  return String(value)
+}
+
 function App() {
   const modelRef = useRef<LoadedModel | null>(null)
   // Selection is kept in component state only; never written to any storage.
@@ -116,6 +137,13 @@ function App() {
     }
   }
 
+  // Clears the in-memory log only. No storage is used anywhere.
+  function handleClearLog() {
+    setLogs([])
+  }
+
+  const lastLog = logs.length > 0 ? logs[logs.length - 1] : null
+
   return (
     <main className="lab">
       <h1>Oriex Embedded AI Lab</h1>
@@ -156,9 +184,52 @@ function App() {
       <pre className="output">{output || '(no output)'}</pre>
 
       <h2>Diagnostic log</h2>
-      <button type="button" onClick={handleCopyLog} disabled={logs.length === 0}>
-        Copy log
-      </button>
+
+      <div className="summary">
+        <strong>Last result:</strong>{' '}
+        {lastLog ? (lastLog.success ? 'success' : `failed (${lastLog.errorType ?? 'unknown'})`) : '-'}
+        {' | '}
+        <strong>Load:</strong> {formatCell(lastLog?.loadDurationMs)} ms
+        {' | '}
+        <strong>Generate:</strong> {formatCell(lastLog?.generationDurationMs)} ms
+        {' | '}
+        <strong>Model:</strong> {lastLog?.modelId ?? '-'}
+      </div>
+
+      <div className="log-actions">
+        <button type="button" onClick={handleCopyLog} disabled={logs.length === 0}>
+          Copy log (JSON)
+        </button>
+        <button type="button" onClick={handleClearLog} disabled={logs.length === 0}>
+          Clear log
+        </button>
+      </div>
+
+      {logs.length > 0 ? (
+        <div className="logtable-wrap">
+          <table className="logtable">
+            <thead>
+              <tr>
+                {LOG_COLUMNS.map((col) => (
+                  <th key={col.key}>{col.label}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {logs.map((entry, i) => (
+                <tr key={i}>
+                  {LOG_COLUMNS.map((col) => (
+                    <td key={col.key}>{formatCell(entry[col.key])}</td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      ) : (
+        <p className="note">(no log)</p>
+      )}
+
       <pre className="log">{logs.length ? formatDiagnosticLog(logs) : '(no log)'}</pre>
 
       <h2>Safety notes</h2>
