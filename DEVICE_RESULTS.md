@@ -36,6 +36,25 @@ loaded and run on real devices, and how long load/generation take.
 | onnx-community/Llama-3.2-1B-Instruct | not tested | - | - | - | - | - | - | - | Heavier than Qwen2.5-0.5B, which already timed out |
 | onnx-community/Qwen2.5-1.5B-Instruct | not tested | - | - | - | - | - | - | - | Heavier than Qwen2.5-0.5B, which already timed out |
 
+## Mobile browser results
+
+Scaffold only. Values below are placeholders — no real measurements have been
+taken yet. Only the default recommended model (`Xenova/distilgpt2`) is in scope;
+heavy / non-default models are not tested here. Fill each cell from the app's
+diagnostic log after running on a real device. Do not record prompt text,
+generated text, or personal data.
+
+| Device type | Browser | OS | deviceMemory | hardwareConcurrency | modelId | backend | success | loadDurationMs | generationDurationMs | inputLength | outputLength | errorType | note |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| iPhone | Safari | not measured | not exposed | not exposed | Xenova/distilgpt2 | not measured | pending measurement | not measured | not measured | not measured | not measured | not measured | pending measurement |
+| Android phone | Chrome | not measured | not measured | not measured | Xenova/distilgpt2 | not measured | pending measurement | not measured | not measured | not measured | not measured | not measured | pending measurement |
+
+Placeholder legend:
+
+- `not measured` — not yet run / not yet recorded.
+- `not exposed` — the browser does not expose this field (e.g. Safari hides `deviceMemory`).
+- `pending measurement` — to be filled after a real-device run.
+
 ## Next measurement targets
 
 - iPhone Safari — Xenova/distilgpt2
