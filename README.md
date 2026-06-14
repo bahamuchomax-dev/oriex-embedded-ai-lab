@@ -1,73 +1,60 @@
-# React + TypeScript + Vite
+# Oriex Embedded AI Lab
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A minimal proof-of-concept screen for experimenting with **on-device (embedded) AI**
+on smartphones. Inference runs entirely in the browser via **Transformers.js**
+with a **WASM fallback**. No external AI API is ever called.
 
-Currently, two official plugins are available:
+## What it shows
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- Engine name: `Transformers.js / WASM fallback`
+- Model ID (or `model-id-not-configured` when unset)
+- Load model button
+- Fixed sample input (shown as text)
+- Generate button (proposes tomorrow's review tasks in 3 lines or fewer)
+- Output area
+- Diagnostic log + copy button (lengths and metadata only)
+- Safety notes
 
-## React Compiler
+## Safety design
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- **No external AI API**: OpenAI / Anthropic / Gemini are never contacted.
+- **No API keys**, no `.env`, no Firebase.
+- Input and generated text are **never** written to `localStorage`.
+- The diagnostic log **never** contains input or output text - only lengths.
+- No `dangerouslySetInnerHTML` / `innerHTML`; values render as React text.
+- **Model weights are not bundled** in this repo.
+- The transformers package is loaded **only via a runtime dynamic import**,
+  never as a top-level import.
 
-## Expanding the ESLint configuration
+See [docs/SECURITY_NOTES.md](docs/SECURITY_NOTES.md) for the full list.
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## Configuring a model
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+`MODEL_ID` in `src/embeddedAi/transformersFallbackLab.ts` is empty by default,
+so the lab shows `model-id-not-configured` and fetches nothing. To enable real
+inference, set it to a vetted, browser-compatible (ONNX) model id, e.g.
+`onnx-community/Qwen2.5-0.5B-Instruct`. Weights are then fetched by the
+runtime into the browser cache, not into this repo.
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+## Scripts
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm run dev      # start the dev server
+npm run build    # type-check + production build
+npm run lint     # eslint
+npm run test     # vitest (safety + unit tests)
+npm run preview  # preview the production build
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## Deployment
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+Pushed to `main` (or run manually), GitHub Actions builds and deploys `dist`
+to GitHub Pages. The Vite `base` is set to `/oriex-embedded-ai-lab/`.
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+Pages URL: https://bahamuchomax-dev.github.io/oriex-embedded-ai-lab/
+
+## Docs
+
+- [docs/EMBEDDED_AI_LAB_PLAN.md](docs/EMBEDDED_AI_LAB_PLAN.md)
+- [docs/DEVICE_RESULTS.md](docs/DEVICE_RESULTS.md)
+- [docs/SECURITY_NOTES.md](docs/SECURITY_NOTES.md)
