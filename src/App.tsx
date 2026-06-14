@@ -161,7 +161,7 @@ function App() {
       >
         {MODEL_CANDIDATES.map((c) => (
           <option key={c.id} value={c.id}>
-            {c.label}
+            {c.label} [{c.measuredStatus}]
           </option>
         ))}
       </select>
@@ -170,6 +170,15 @@ function App() {
       <p className="note">Quality: {selected.qualityNote}</p>
       <p className="note">Risk: {selected.riskNote}</p>
       <p className="note">Timeout: {Math.round(selected.timeoutMs / 1000)}s</p>
+      <p className="note">
+        Measured: {selected.measuredStatus} — {selected.measuredNote}
+      </p>
+      <p className="note">
+        Recommended for default test: {selected.recommendedForDefaultTest ? 'yes' : 'no'}
+      </p>
+      {!selected.recommendedForDefaultTest ? (
+        <p className="warning">This candidate is not recommended for normal testing yet.</p>
+      ) : null}
       {selected.timeoutMs > 60000 ? (
         <p className="warning">This model may take several minutes or fail on some devices.</p>
       ) : null}
