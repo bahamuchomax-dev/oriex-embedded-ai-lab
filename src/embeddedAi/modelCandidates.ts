@@ -27,7 +27,7 @@ export interface ModelCandidate {
   /** Whether this is recommended for the normal default smoke test. */
   recommendedForDefaultTest: boolean
   /** Benchmarked load/run status from real-device testing. */
-  measuredStatus: 'works' | 'timeout' | 'untested-heavy'
+  measuredStatus: 'works' | 'timeout' | 'untested-heavy' | 'untested-lightweight'
   /** Human-readable note about the measurement. */
   measuredNote: string
 }
@@ -46,6 +46,20 @@ export const MODEL_CANDIDATES: ModelCandidate[] = [
     recommendedForDefaultTest: true,
     measuredStatus: 'works',
     measuredNote: 'PC Chrome (deviceMemory 16, 12 cores): load ~5.1s, generate ~3.1s.',
+  },
+  {
+    id: 'smollm2-135m-instruct',
+    label: 'SmolLM2-135M-Instruct (experimental, lightweight)',
+    modelId: 'HuggingFaceTB/SmolLM2-135M-Instruct',
+    task: 'text-generation',
+    language: 'Primarily English',
+    sizeNote: '135M params (official; SmolLM2 family 135M/360M/1.7B). ONNX incl. quantized (int8 ~137MB, q4).',
+    qualityNote: 'Instruct-tuned and lighter than Qwen2.5-0.5B; small, so quality is limited and Japanese is weak.',
+    riskNote: 'Experimental candidate. Lighter than the heavy models, but still unverified in-browser; may be slow or fail on low-end devices.',
+    timeoutMs: 120000,
+    recommendedForDefaultTest: false,
+    measuredStatus: 'untested-lightweight',
+    measuredNote: 'Experimental. Not measured yet. Non-default. Use only for controlled testing.',
   },
   {
     id: 'qwen2.5-0.5b-instruct',

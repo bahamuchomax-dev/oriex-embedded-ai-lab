@@ -172,12 +172,21 @@ describe('model candidates', () => {
   })
 
   it('records a valid measured status and note for every candidate', () => {
-    const valid = ['works', 'timeout', 'untested-heavy']
+    const valid = ['works', 'timeout', 'untested-heavy', 'untested-lightweight']
     for (const c of MODEL_CANDIDATES) {
       expect(valid).toContain(c.measuredStatus)
       expect(typeof c.measuredNote).toBe('string')
       expect(c.measuredNote.length).toBeGreaterThan(0)
     }
+  })
+
+  it('keeps the SmolLM2-135M experimental candidate non-default', () => {
+    const smol = MODEL_CANDIDATES.find(
+      (c) => c.modelId === 'HuggingFaceTB/SmolLM2-135M-Instruct',
+    )
+    expect(smol).toBeTruthy()
+    expect(smol!.recommendedForDefaultTest).toBe(false)
+    expect(smol!.measuredStatus).toBe('untested-lightweight')
   })
 
   it('marks distilgpt2 as works and Qwen2.5-0.5B as timeout', () => {
