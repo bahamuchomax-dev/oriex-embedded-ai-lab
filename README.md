@@ -56,5 +56,6 @@ Pages URL: https://bahamuchomax-dev.github.io/oriex-embedded-ai-lab/
 ## Docs
 
 - [DEVICE_RESULTS.md](DEVICE_RESULTS.md) — canonical measured browser-device benchmark results
+- [DEPLOYMENT_NOTES.md](DEPLOYMENT_NOTES.md) — Pages deployment state and mitigation plan
 - [docs/EMBEDDED_AI_LAB_PLAN.md](docs/EMBEDDED_AI_LAB_PLAN.md)
 - [docs/SECURITY_NOTES.md](docs/SECURITY_NOTES.md)
