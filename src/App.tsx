@@ -2,21 +2,21 @@ import { useRef, useState } from 'react'
 import './App.css'
 import {
   ENGINE_NAME,
-  MODEL_ID,
   SAMPLE_INPUT,
   buildPrompt,
   createPipeline,
-  isModelConfigured,
 } from './embeddedAi/transformersFallbackLab'
 import type { LoadedModel } from './embeddedAi/transformersFallbackLab'
+import { MODEL_CANDIDATES, DEFAULT_CANDIDATE_ID, getCandidate } from './embeddedAi/modelCandidates'
 import { classifyError } from './embeddedAi/errorClassifier'
 import { createDiagnosticLogEntry, formatDiagnosticLog } from './embeddedAi/diagnosticLog'
 import type { DiagnosticLogEntry } from './embeddedAi/diagnosticLog'
 
-const MODEL_ID_DISPLAY = isModelConfigured() ? MODEL_ID : 'model-id-not-configured'
-
 function App() {
   const modelRef = useRef<LoadedModel | null>(null)
+  // Selection is kept in component state only; never written to any storage.
+  const [selectedId, setSelectedId] = useState(DEFAULT_CANDIDATE_ID)
+  const selected = getCandidate(selectedId)
   const [status, setStatus] = useState('idle')
   const [backend, setBackend] = useState('unknown')
   const [output, setOutput] = useState('')
@@ -30,14 +30,14 @@ function App() {
     setStatus('loading')
     const loadStartedAt = Date.now()
     try {
-      const model = await createPipeline()
+      const model = await createPipeline(selected.modelId)
       modelRef.current = model
       setBackend(model.backend)
       setStatus('loaded')
       addLog(
         createDiagnosticLogEntry({
           engine: ENGINE_NAME,
-          modelId: MODEL_ID_DISPLAY,
+          modelId: selected.modelId,
           backend: model.backend,
           loadStartedAt,
           loadFinishedAt: Date.now(),
@@ -53,7 +53,7 @@ function App() {
       addLog(
         createDiagnosticLogEntry({
           engine: ENGINE_NAME,
-          modelId: MODEL_ID_DISPLAY,
+          modelId: selected.modelId,
           backend,
           loadStartedAt,
           loadFinishedAt: Date.now(),
@@ -80,7 +80,7 @@ function App() {
       addLog(
         createDiagnosticLogEntry({
           engine: ENGINE_NAME,
-          modelId: MODEL_ID_DISPLAY,
+          modelId: selected.modelId,
           backend,
           generationStartedAt,
           generationFinishedAt: Date.now(),
@@ -96,7 +96,7 @@ function App() {
       addLog(
         createDiagnosticLogEntry({
           engine: ENGINE_NAME,
-          modelId: MODEL_ID_DISPLAY,
+          modelId: selected.modelId,
           backend,
           generationStartedAt,
           generationFinishedAt: Date.now(),
@@ -121,9 +121,26 @@ function App() {
       <h1>Oriex Embedded AI Lab</h1>
 
       <p>Engine: {ENGINE_NAME}</p>
-      <p>Model ID: {MODEL_ID_DISPLAY}</p>
+      <p>Model ID: {selected.modelId}</p>
       <p>Backend: {backend}</p>
       <p>Status: {status}</p>
+
+      <h2>Model candidate</h2>
+      <select
+        aria-label="Model candidate"
+        value={selectedId}
+        onChange={(e) => setSelectedId(e.target.value)}
+      >
+        {MODEL_CANDIDATES.map((c) => (
+          <option key={c.id} value={c.id}>
+            {c.label}
+          </option>
+        ))}
+      </select>
+      <p className="note">Language: {selected.language}</p>
+      <p className="note">Size: {selected.sizeNote}</p>
+      <p className="note">Quality: {selected.qualityNote}</p>
+      <p className="note">Risk: {selected.riskNote}</p>
 
       <button type="button" onClick={handleLoad}>
         Load model

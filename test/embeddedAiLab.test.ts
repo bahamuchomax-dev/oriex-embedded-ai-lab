@@ -11,6 +11,7 @@ import {
 import type { EmbeddedAiErrorType } from '../src/embeddedAi/errorClassifier'
 import { createDiagnosticLogEntry } from '../src/embeddedAi/diagnosticLog'
 import { SAMPLE_INPUT } from '../src/embeddedAi/transformersFallbackLab'
+import { MODEL_CANDIDATES, getCandidate } from '../src/embeddedAi/modelCandidates'
 
 const here = dirname(fileURLToPath(import.meta.url))
 const root = resolve(here, '..')
@@ -121,6 +122,39 @@ describe('vite base', () => {
   it('is /oriex-embedded-ai-lab/', () => {
     const cfg = readFileSync(join(root, 'vite.config.ts'), 'utf8')
     expect(cfg).toContain("base: '/oriex-embedded-ai-lab/'")
+  })
+})
+
+describe('model candidates', () => {
+  it('includes the distilgpt2 PoC model as the first candidate', () => {
+    expect(MODEL_CANDIDATES[0].modelId).toBe('Xenova/distilgpt2')
+  })
+
+  it('has at least three Japanese-capable candidates besides distilgpt2', () => {
+    const jp = MODEL_CANDIDATES.filter((c) => /japanese|multilingual/i.test(c.language))
+    expect(jp.length).toBeGreaterThanOrEqual(2)
+  })
+
+  it('gives every candidate the required non-empty fields', () => {
+    for (const c of MODEL_CANDIDATES) {
+      for (const key of ['id', 'label', 'modelId', 'task', 'language', 'sizeNote', 'qualityNote', 'riskNote'] as const) {
+        expect(typeof c[key]).toBe('string')
+        expect(c[key].length).toBeGreaterThan(0)
+      }
+      expect(c.task).toBe('text-generation')
+    }
+  })
+
+  it('has unique ids and falls back to the first candidate for unknown ids', () => {
+    const ids = MODEL_CANDIDATES.map((c) => c.id)
+    expect(new Set(ids).size).toBe(ids.length)
+    expect(getCandidate('does-not-exist')).toBe(MODEL_CANDIDATES[0])
+  })
+
+  it('does not bundle any model weights (ids are remote references only)', () => {
+    for (const c of MODEL_CANDIDATES) {
+      expect(c.modelId).not.toMatch(/\.(onnx|safetensors|bin|gguf)$/)
+    }
   })
 })
 
