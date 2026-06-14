@@ -160,6 +160,32 @@ describe('model candidates', () => {
     }
   })
 
+  it('recommends only distilgpt2 for the default test', () => {
+    const recommended = MODEL_CANDIDATES.filter((c) => c.recommendedForDefaultTest)
+    expect(recommended).toHaveLength(1)
+    expect(recommended[0].modelId).toBe('Xenova/distilgpt2')
+  })
+
+  it('keeps distilgpt2 as the default candidate and it is recommended', () => {
+    expect(getCandidate('does-not-exist').modelId).toBe('Xenova/distilgpt2')
+    expect(MODEL_CANDIDATES[0].recommendedForDefaultTest).toBe(true)
+  })
+
+  it('records a valid measured status and note for every candidate', () => {
+    const valid = ['works', 'timeout', 'untested-heavy']
+    for (const c of MODEL_CANDIDATES) {
+      expect(valid).toContain(c.measuredStatus)
+      expect(typeof c.measuredNote).toBe('string')
+      expect(c.measuredNote.length).toBeGreaterThan(0)
+    }
+  })
+
+  it('marks distilgpt2 as works and Qwen2.5-0.5B as timeout', () => {
+    const byId = (id: string) => MODEL_CANDIDATES.find((c) => c.modelId === id)!
+    expect(byId('Xenova/distilgpt2').measuredStatus).toBe('works')
+    expect(byId('onnx-community/Qwen2.5-0.5B-Instruct').measuredStatus).toBe('timeout')
+  })
+
   it('has unique ids and falls back to the first candidate for unknown ids', () => {
     const ids = MODEL_CANDIDATES.map((c) => c.id)
     expect(new Set(ids).size).toBe(ids.length)

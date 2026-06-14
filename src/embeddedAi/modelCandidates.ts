@@ -24,6 +24,12 @@ export interface ModelCandidate {
   riskNote: string
   /** Per-model load timeout in ms. Heavier models need a longer timeout. */
   timeoutMs: number
+  /** Whether this is recommended for the normal default smoke test. */
+  recommendedForDefaultTest: boolean
+  /** Benchmarked load/run status from real-device testing. */
+  measuredStatus: 'works' | 'timeout' | 'untested-heavy'
+  /** Human-readable note about the measurement. */
+  measuredNote: string
 }
 
 export const MODEL_CANDIDATES: ModelCandidate[] = [
@@ -37,6 +43,9 @@ export const MODEL_CANDIDATES: ModelCandidate[] = [
     qualityNote: 'PoC baseline. English base LM; weak/garbled Japanese output.',
     riskNote: 'Not suitable for Japanese review suggestions; use only to verify inference works.',
     timeoutMs: 60000,
+    recommendedForDefaultTest: true,
+    measuredStatus: 'works',
+    measuredNote: 'PC Chrome (deviceMemory 16, 12 cores): load ~5.1s, generate ~3.1s.',
   },
   {
     id: 'qwen2.5-0.5b-instruct',
@@ -48,6 +57,9 @@ export const MODEL_CANDIDATES: ModelCandidate[] = [
     qualityNote: 'Instruct-tuned; usable short Japanese suggestions for a small model.',
     riskNote: 'Moderate download/memory; may be slow on low-end phones. First load can take a while.',
     timeoutMs: 180000,
+    recommendedForDefaultTest: false,
+    measuredStatus: 'timeout',
+    measuredNote: 'PC Chrome: load-timeout even at 180s (~180.5s, backend unknown). Not usable yet.',
   },
   {
     id: 'llama-3.2-1b-instruct',
@@ -59,6 +71,9 @@ export const MODEL_CANDIDATES: ModelCandidate[] = [
     qualityNote: 'Better Japanese coherence than 0.5B; still small overall.',
     riskNote: 'Heavy: large download and high memory; may be slow or fail to load on many phones. Check model license before production use.',
     timeoutMs: 240000,
+    recommendedForDefaultTest: false,
+    measuredStatus: 'untested-heavy',
+    measuredNote: 'Heavier than Qwen2.5-0.5B (which timed out at 180s); not validated. Expect long load or failure.',
   },
   {
     id: 'qwen2.5-1.5b-instruct',
@@ -70,6 +85,9 @@ export const MODEL_CANDIDATES: ModelCandidate[] = [
     qualityNote: 'Best Japanese quality of these candidates.',
     riskNote: 'Very heavy: likely too large for most phones; may exhaust memory or fail to load. Desktop/testing only.',
     timeoutMs: 300000,
+    recommendedForDefaultTest: false,
+    measuredStatus: 'untested-heavy',
+    measuredNote: 'Heaviest candidate; not validated. Likely to time out or exhaust memory.',
   },
 ]
 
