@@ -51,7 +51,7 @@ function App() {
     setStatus('loading')
     const loadStartedAt = Date.now()
     try {
-      const model = await createPipeline(selected.modelId)
+      const model = await createPipeline(selected.modelId, selected.timeoutMs)
       modelRef.current = model
       setBackend(model.backend)
       setStatus('loaded')
@@ -169,6 +169,10 @@ function App() {
       <p className="note">Size: {selected.sizeNote}</p>
       <p className="note">Quality: {selected.qualityNote}</p>
       <p className="note">Risk: {selected.riskNote}</p>
+      <p className="note">Timeout: {Math.round(selected.timeoutMs / 1000)}s</p>
+      {selected.timeoutMs > 60000 ? (
+        <p className="warning">This model may take several minutes or fail on some devices.</p>
+      ) : null}
 
       <button type="button" onClick={handleLoad}>
         Load model

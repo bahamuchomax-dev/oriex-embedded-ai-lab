@@ -51,6 +51,16 @@
   color: #444;
 }
 
+.warning {
+  margin: 0.4rem 0;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.9rem;
+  color: #7a3b00;
+  background: #fff4e5;
+  border: 1px solid #ffd8a8;
+  border-radius: 8px;
+}
+
 .summary {
   background: #eef6ff;
   border: 1px solid #cfe3fb;

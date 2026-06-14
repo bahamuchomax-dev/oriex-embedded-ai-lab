@@ -145,6 +145,21 @@ describe('model candidates', () => {
     }
   })
 
+  it('gives every candidate a positive numeric load timeout', () => {
+    for (const c of MODEL_CANDIDATES) {
+      expect(typeof c.timeoutMs).toBe('number')
+      expect(c.timeoutMs).toBeGreaterThan(0)
+    }
+  })
+
+  it('uses a longer timeout for heavier (non-distilgpt2) candidates', () => {
+    const distil = MODEL_CANDIDATES.find((c) => c.modelId === 'Xenova/distilgpt2')!
+    const heavier = MODEL_CANDIDATES.filter((c) => c.modelId !== 'Xenova/distilgpt2')
+    for (const c of heavier) {
+      expect(c.timeoutMs).toBeGreaterThan(distil.timeoutMs)
+    }
+  })
+
   it('has unique ids and falls back to the first candidate for unknown ids', () => {
     const ids = MODEL_CANDIDATES.map((c) => c.id)
     expect(new Set(ids).size).toBe(ids.length)
