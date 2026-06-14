@@ -48,6 +48,38 @@ Notes on the GitHub Pages deployment for the Oriex Embedded AI Lab.
   - GitHub Pages deployment succeeds
   - Public URL returns HTTP 200 and the app title loads
 
+## Remaining Node20 warnings after deploy-pages@v5
+
+Phase 10 upgraded `actions/deploy-pages@v4` -> `@v5`, which **resolved the
+deploy-pages-specific Node20 warning** (it no longer appears in the warning
+list). The remaining Node20 deprecation warnings are **non-blocking** (CI and
+Pages deployment both still succeed) and come from the actions below.
+
+Observed in the latest runs after Phase 10:
+
+- CI run `27515246712` (`.github/workflows/ci.yml`, job `safety-and-build`)
+- Pages deploy run `27515246718` (`.github/workflows/deploy-pages.yml`, job `build`)
+
+| Action | Current | Latest stable | Workflow file(s) | Blocking? | Recommended next action |
+| --- | --- | --- | --- | --- | --- |
+| actions/deploy-pages | v5 | v5.0.0 | deploy-pages.yml | no | keep as-is (already updated in Phase 10) |
+| actions/checkout | v4 | v6.0.3 | ci.yml, deploy-pages.yml | no | update in a later phase; official version check first (v4 -> v6 is two majors) |
+| actions/setup-node | v4 | v6.4.0 | ci.yml, deploy-pages.yml | no | update in a later phase; official version check first (v4 -> v6 is two majors) |
+| actions/upload-artifact (internal) | v4 | v7.0.1 | deploy-pages.yml (used internally by upload-pages-artifact@v3) | no | not referenced directly; addressed by updating upload-pages-artifact |
+| actions/upload-pages-artifact | v3 | v5.0.0 | deploy-pages.yml | no | update in a later phase; verify v5 still produces a Pages-compatible artifact and emits Node24 internals |
+
+Notes:
+
+- `actions/upload-artifact@v4` is **not referenced directly** in our workflows;
+  it is pulled in by `actions/upload-pages-artifact@v3`. Bumping
+  `upload-pages-artifact` (v3 -> v5) is the way to remove that warning.
+- No change is required right now: the warnings are informational and the June
+  16th, 2026 / September 16th, 2026 dates only affect default Node runtime, not
+  current success.
+- Any future bump should follow the same minimal/safe pattern as Phase 10:
+  change one action version at a time, then verify CI passes, Pages deploys, and
+  the public URL returns HTTP 200 with the app title.
+
 ## Do not change without review
 
 - Pages base path (`base: '/oriex-embedded-ai-lab/'` in `vite.config.ts`).
