@@ -22,6 +22,8 @@ export interface ModelCandidate {
   qualityNote: string
   /** Risk / caveat note (heavy download, memory, suitability). */
   riskNote: string
+  /** Per-model load timeout in ms. Heavier models need a longer timeout. */
+  timeoutMs: number
 }
 
 export const MODEL_CANDIDATES: ModelCandidate[] = [
@@ -34,6 +36,7 @@ export const MODEL_CANDIDATES: ModelCandidate[] = [
     sizeNote: '~82M params, small download',
     qualityNote: 'PoC baseline. English base LM; weak/garbled Japanese output.',
     riskNote: 'Not suitable for Japanese review suggestions; use only to verify inference works.',
+    timeoutMs: 60000,
   },
   {
     id: 'qwen2.5-0.5b-instruct',
@@ -44,6 +47,7 @@ export const MODEL_CANDIDATES: ModelCandidate[] = [
     sizeNote: '~0.5B params; several hundred MB download',
     qualityNote: 'Instruct-tuned; usable short Japanese suggestions for a small model.',
     riskNote: 'Moderate download/memory; may be slow on low-end phones. First load can take a while.',
+    timeoutMs: 180000,
   },
   {
     id: 'llama-3.2-1b-instruct',
@@ -54,6 +58,7 @@ export const MODEL_CANDIDATES: ModelCandidate[] = [
     sizeNote: '~1.2B params; large download',
     qualityNote: 'Better Japanese coherence than 0.5B; still small overall.',
     riskNote: 'Heavy: large download and high memory; may be slow or fail to load on many phones. Check model license before production use.',
+    timeoutMs: 240000,
   },
   {
     id: 'qwen2.5-1.5b-instruct',
@@ -64,6 +69,7 @@ export const MODEL_CANDIDATES: ModelCandidate[] = [
     sizeNote: '~1.5B params; very large download',
     qualityNote: 'Best Japanese quality of these candidates.',
     riskNote: 'Very heavy: likely too large for most phones; may exhaust memory or fail to load. Desktop/testing only.',
+    timeoutMs: 300000,
   },
 ]
 
