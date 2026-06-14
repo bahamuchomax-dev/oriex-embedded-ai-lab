@@ -80,6 +80,27 @@ Notes:
   change one action version at a time, then verify CI passes, Pages deploys, and
   the public URL returns HTTP 200 with the app title.
 
+## Remaining Actions update (Phase 10.6)
+
+Updated the remaining warning-related actions to versions that run on Node24
+(workflow-only changes; structure, permissions, concurrency, artifact path and
+build command all unchanged):
+
+- `actions/upload-pages-artifact`: v3 -> v5 (`deploy-pages.yml`)
+- `actions/setup-node`: v4 -> v6 (`ci.yml`, `deploy-pages.yml`)
+- `actions/checkout`: v4 -> v6 (`ci.yml`, `deploy-pages.yml`)
+
+Reason: remove the remaining Node20 runtime deprecation warnings.
+
+Verification checklist:
+
+- [ ] CI passes
+- [ ] Pages deploy succeeds
+- [ ] public URL returns HTTP 200
+- [ ] app title loads
+- [ ] runtime source files unchanged (App.tsx untouched)
+- [ ] warning summary no longer lists the updated actions (if confirmed)
+
 ## Do not change without review
 
 - Pages base path (`base: '/oriex-embedded-ai-lab/'` in `vite.config.ts`).
