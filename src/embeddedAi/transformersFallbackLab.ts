@@ -111,8 +111,11 @@ export async function loadTransformersModule(): Promise<TransformersModule> {
   return mod
 }
 
-export async function createPipeline(timeoutMs: number = LOAD_TIMEOUT_MS): Promise<LoadedModel> {
-  if (!isModelConfigured()) {
+export async function createPipeline(
+  modelId: string = MODEL_ID,
+  timeoutMs: number = LOAD_TIMEOUT_MS,
+): Promise<LoadedModel> {
+  if (!modelId || modelId.trim().length === 0) {
     throw makeClassifiedError('model-id-not-configured')
   }
 
@@ -124,7 +127,7 @@ export async function createPipeline(timeoutMs: number = LOAD_TIMEOUT_MS): Promi
   }
 
   const pipe = (await withTimeout(
-    mod.pipeline('text-generation', MODEL_ID),
+    mod.pipeline('text-generation', modelId),
     timeoutMs,
   )) as TextGenerationPipeline
 
